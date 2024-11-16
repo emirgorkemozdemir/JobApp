@@ -20,10 +20,10 @@
     @Html.TextBoxFor(m => m.Phone)
 
     @Html.ValidationMessageFor(m => m.Profession)
-    @Html.TextBoxFor(m => m.Profession)
+    @Html.DropDownListFor(m => m.Profession, new SelectList(ViewBag.proffesions, "Value", "Text"))
 
     @Html.ValidationMessageFor(m => m.Skills)
-    @Html.TextBoxFor(m => m.Skills)
+    @Html.DropDownListFor(m => m.Skills, new SelectList(ViewBag.skills, "Value", "Text"))
 
     <input type="submit" value="Edit" />
 }

@@ -75,14 +75,46 @@ namespace JobsApp.Controllers
            
         }
 
+        public List<SelectListItem> GetProfessions()
+        {
+            List<SelectListItem> listItems = new List<SelectListItem>();
+            var professions = db.Profession.ToList();
+            foreach (var p in professions)
+            {
+                SelectListItem item = new SelectListItem();
+                item.Text = p.Name;
+                item.Value = p.ProfessionID.ToString();
+                listItems.Add(item);
+            }
+            return listItems;
+        }
+
+        public List<SelectListItem> GetSkills()
+        {
+            List<SelectListItem> listItems = new List<SelectListItem>();
+            var skills = db.Skill.ToList();
+            foreach (var s in skills)
+            {
+                SelectListItem item = new SelectListItem();
+                item.Text = s.Name;
+                item.Value =s.SkillID.ToString();
+                listItems.Add(item);
+            }
+            return listItems;
+        }
+
+    
+
         // Profil Düzenleme Ekranı için bir action açtık. HttpGet oldugu için sayfa 
         // yüklenirken burası çalışacak. Bir id alyıoruz. Bunu daha sonra diger sayfalardan
         // çalıştıracagız.
         [HttpGet]
-        public ActionResult EditProfile(int id)
+        public ActionResult EditProfile(int id=2)
         {
             // Gelen id degerine göre kullanıcıyı bulup sayfaya gönderiyoruz.
             // Bu sayede sayfada kullanıcının bilgileri dolu gelecek.
+            ViewBag.proffesions = GetProfessions();
+            ViewBag.skills = GetSkills();
             User selected_user = db.User.Find(id);
             return View(selected_user);
         }
@@ -112,7 +144,8 @@ namespace JobsApp.Controllers
                 }
                 else
                 {
-                    
+                    ViewBag.proffesions = GetProfessions();
+                    ViewBag.skills = GetSkills();
                     return View();
                 }
             }
