@@ -1,0 +1,31 @@
+﻿@using JobApp.Models
+@model User
+@{
+    Layout = null;
+}
+
+@using (Html.BeginForm("EditProfile", "User", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    @Html.HiddenFor(m => m.UserID)
+
+    @Html.ValidationMessageFor(m => m.Name)
+    @Html.TextBoxFor(m => m.Name)
+
+    @Html.ValidationMessageFor(m => m.Surname)
+    @Html.TextBoxFor(m => m.Surname)
+
+    @Html.ValidationMessageFor(m => m.Phone)
+    @Html.TextBoxFor(m => m.Phone)
+
+    @Html.ValidationMessageFor(m => m.Profession)
+    @Html.TextBoxFor(m => m.Profession)
+
+    @Html.ValidationMessageFor(m => m.Skills)
+    @Html.TextBoxFor(m => m.Skills)
+
+    <input type="submit" value="Edit" />
+}
+
+
