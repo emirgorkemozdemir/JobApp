@@ -58,7 +58,8 @@ namespace JobsApp.Controllers
 
                 if (selected_user!=null)
                 {
-                    return RedirectToAction("MainPage");
+                    Session["IsUserOnline"] = true;
+                    return RedirectToAction("UserMainPage");
                 }
                 else
                 {
@@ -89,10 +90,11 @@ namespace JobsApp.Controllers
             return listItems;
         }
 
-        public List<SelectListItem> GetSkills()
+        [HttpGet]
+        public JsonResult GetSkills(int professionId)
         {
             List<SelectListItem> listItems = new List<SelectListItem>();
-            var skills = db.Skill.ToList();
+            var skills = db.Skill.Where(s=>s.Profession==professionId).ToList();
             foreach (var s in skills)
             {
                 SelectListItem item = new SelectListItem();
@@ -100,7 +102,7 @@ namespace JobsApp.Controllers
                 item.Value =s.SkillID.ToString();
                 listItems.Add(item);
             }
-            return listItems;
+            return Json(listItems,JsonRequestBehavior.AllowGet);
         }
 
     
@@ -109,14 +111,21 @@ namespace JobsApp.Controllers
         // yüklenirken burası çalışacak. Bir id alyıoruz. Bunu daha sonra diger sayfalardan
         // çalıştıracagız.
         [HttpGet]
-        public ActionResult EditProfile(int id=2)
+        public ActionResult EditProfile(int id)
         {
-            // Gelen id degerine göre kullanıcıyı bulup sayfaya gönderiyoruz.
-            // Bu sayede sayfada kullanıcının bilgileri dolu gelecek.
-            ViewBag.proffesions = GetProfessions();
-            ViewBag.skills = GetSkills();
-            User selected_user = db.User.Find(id);
-            return View(selected_user);
+            if (Convert.ToBoolean(Session["IsUserOnline"])==true)
+            {
+                // Gelen id degerine göre kullanıcıyı bulup sayfaya gönderiyoruz.
+                // Bu sayede sayfada kullanıcının bilgileri dolu gelecek.
+                ViewBag.proffesions = GetProfessions();
+                User selected_user = db.User.Find(id);
+                return View(selected_user);
+            }
+            else
+            {
+                return RedirectToAction("Login");
+            }
+         
         }
 
         // Sayfadan düzenle butonuna basıldıgında burası çalışacak (post)
@@ -124,32 +133,45 @@ namespace JobsApp.Controllers
         [HttpPost]
         public ActionResult EditProfile(User posted_user)
         {
-            // Giriş yapılı mı kontorlü
             if (Convert.ToBoolean(Session["IsUserOnline"]) == true)
             {
-                // Model valid mi kontrolü
-                if (ModelState.IsValid)
+                // Giriş yapılı mı kontorlü
+                if (Convert.ToBoolean(Session["IsUserOnline"]) == true)
                 {
-                    // Burada solda kalanı veritabanındaki kullanıcı gibi düşünün.
-                    // Sagdaki de posttan gelen kullanıcı.
-                    // Soldaki degerleri sagdakiler ile degiştirip kaydediyoruz.
-                    User db_user = db.User.Find(posted_user.UserID);
-                    db_user.Name = posted_user.Name;
-                    db_user.Surname = posted_user.Surname;
-                    db_user.Phone = posted_user.Phone;
-                    db_user.Profession = posted_user.Profession;
-                    db_user.Skills = posted_user.Skills;
-                    db.SaveChanges();
-                    return RedirectToAction("ListUsers");
+                    // Model valid mi kontrolü
+                    if (ModelState.IsValid)
+                    {
+                        // Burada solda kalanı veritabanındaki kullanıcı gibi düşünün.
+                        // Sagdaki de posttan gelen kullanıcı.
+                        // Soldaki degerleri sagdakiler ile degiştirip kaydediyoruz.
+                        User db_user = db.User.Find(posted_user.UserID);
+                        db_user.Name = posted_user.Name;
+                        db_user.Surname = posted_user.Surname;
+                        db_user.Phone = posted_user.Phone;
+                        db_user.Profession = posted_user.Profession;
+                        db_user.Skills = posted_user.Skills;
+                        db.SaveChanges();
+                        return RedirectToAction("MyProfile");
+                    }
+                    else
+                    {
+                        ViewBag.proffesions = GetProfessions();
+                        return View();
+                    }
                 }
-                else
-                {
-                    ViewBag.proffesions = GetProfessions();
-                    ViewBag.skills = GetSkills();
-                    return View();
-                }
+                return RedirectToAction("MyProfile");
             }
-            return RedirectToAction("ListUsers");
+            else
+            {
+                return RedirectToAction("Login");
+            }
+
+        }
+
+        [HttpGet]
+        public ActionResult UserMainPage()
+        {
+            return View();
         }
     }
 }

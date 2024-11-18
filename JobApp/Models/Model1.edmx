@@ -33,6 +33,7 @@
           <Property Name="Company" Type="int" Nullable="false" />
           <Property Name="Description" Type="nvarchar(max)" Nullable="false" />
           <Property Name="Skills" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="Location" Type="nvarchar(max)" Nullable="false" />
         </EntityType>
         <EntityType Name="Profession">
           <Key>
@@ -47,6 +48,7 @@
           </Key>
           <Property Name="SkillID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Name" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="Profession" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="sysdiagrams">
           <Key>
@@ -97,6 +99,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Skill_Profession">
+          <End Role="Profession" Type="Self.Profession" Multiplicity="1" />
+          <End Role="Skill" Type="Self.Skill" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Profession">
+              <PropertyRef Name="ProfessionID" />
+            </Principal>
+            <Dependent Role="Skill">
+              <PropertyRef Name="Profession" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Function Name="fn_diagramobjects" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="true" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" ReturnType="int" />
         <Function Name="sp_alterdiagram" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="diagramname" Type="nvarchar" Mode="In" />
@@ -144,6 +158,10 @@
             <End Role="Company" EntitySet="Company" />
             <End Role="Posting" EntitySet="Posting" />
           </AssociationSet>
+          <AssociationSet Name="FK_Skill_Profession" Association="Self.FK_Skill_Profession">
+            <End Role="Profession" EntitySet="Profession" />
+            <End Role="Skill" EntitySet="Skill" />
+          </AssociationSet>
         </EntityContainer>
       </Schema>
     </edmx:StorageModels>
@@ -180,6 +198,7 @@
           <Property Name="Company" Type="Int32" Nullable="false" />
           <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Skills" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Location" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="Company1" Relationship="Self.FK_Posting_Company" FromRole="Posting" ToRole="Company" />
         </EntityType>
         <EntityType Name="Profession">
@@ -188,6 +207,7 @@
           </Key>
           <Property Name="ProfessionID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Skill" Relationship="Self.FK_Skill_Profession" FromRole="Profession" ToRole="Skill" />
         </EntityType>
         <EntityType Name="Skill">
           <Key>
@@ -195,6 +215,8 @@
           </Key>
           <Property Name="SkillID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Profession" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Profession1" Relationship="Self.FK_Skill_Profession" FromRole="Skill" ToRole="Profession" />
         </EntityType>
         <EntityType Name="sysdiagrams">
           <Key>
@@ -246,6 +268,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Skill_Profession">
+          <End Role="Profession" Type="Self.Profession" Multiplicity="1" />
+          <End Role="Skill" Type="Self.Skill" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Profession">
+              <PropertyRef Name="ProfessionID" />
+            </Principal>
+            <Dependent Role="Skill">
+              <PropertyRef Name="Profession" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityContainer Name="JobsDBEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Company" EntityType="Self.Company" />
           <EntitySet Name="CV" EntityType="Self.CV" />
@@ -261,6 +295,10 @@
           <AssociationSet Name="FK_CV_User" Association="Self.FK_CV_User">
             <End Role="User" EntitySet="User" />
             <End Role="CV" EntitySet="CV" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Skill_Profession" Association="Self.FK_Skill_Profession">
+            <End Role="Profession" EntitySet="Profession" />
+            <End Role="Skill" EntitySet="Skill" />
           </AssociationSet>
           <FunctionImport Name="sp_alterdiagram">
             <Parameter Name="diagramname" Mode="In" Type="String" />
@@ -339,6 +377,7 @@
                 <ScalarProperty Name="Company" ColumnName="Company" />
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="Skills" ColumnName="Skills" />
+                <ScalarProperty Name="Location" ColumnName="Location" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -355,6 +394,7 @@
               <MappingFragment StoreEntitySet="Skill">
                 <ScalarProperty Name="SkillID" ColumnName="SkillID" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="Profession" ColumnName="Profession" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

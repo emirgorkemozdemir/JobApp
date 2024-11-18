@@ -4,6 +4,10 @@
     Layout = null;
 }
 
+<head>
+    <script src="~/Scripts/jquery-3.4.1.js"></script>
+</head>
+
 @using (Html.BeginForm("EditProfile", "User", FormMethod.Post))
 {
     @Html.AntiForgeryToken()
@@ -20,12 +24,45 @@
     @Html.TextBoxFor(m => m.Phone)
 
     @Html.ValidationMessageFor(m => m.Profession)
-    @Html.DropDownListFor(m => m.Profession, new SelectList(ViewBag.proffesions, "Value", "Text"))
+    @Html.DropDownListFor(m => m.Profession, new SelectList(ViewBag.proffesions, "Value", "Text"), new { @id = "professions" })
 
-    @Html.ValidationMessageFor(m => m.Skills)
-    @Html.DropDownListFor(m => m.Skills, new SelectList(ViewBag.skills, "Value", "Text"))
+    <div id="skillsdiv">
+       <select id="skills">
+
+       </select>
+    </div>
 
     <input type="submit" value="Edit" />
 }
 
+<script type="text/javascript">
+    function get_skills()
+    {
+        $.ajax({
+            type: "get",
+            url: "/User/GetSkills",
+            data: { professionId: $('#professions').val() },
+            datatype: "json",
+            traditional: true,
+            success: function (data) {
+                var result = "<select id='skills'>";
+                for (var i = 0; i < data.length; i++) {
+                    result = result + '<option value=' + data[i].Value + '>' + data[i].Text + '</option>';
+                }
+                result = result + '</select>';
+                $('#skillsdiv').html(result);
+            },
+            error: function () {
+                console.log('hata');
+            }
+        });
+    }
 
+
+    $(document).ready(function () {
+        get_skills();
+        $('#professions').change(function () {
+            get_skills();
+        });
+    });
+</script>

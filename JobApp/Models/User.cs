@@ -11,8 +11,7 @@ namespace JobApp.Models
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-
+    
     public partial class User
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -26,14 +25,8 @@ namespace JobApp.Models
         public string Surname { get; set; }
         public string Phone { get; set; }
         public System.DateTime RegisterDate { get; set; }
-
-        [Required (ErrorMessage ="Kullanýcý adý boþ býrakýlamaz")]
         public string Username { get; set; }
-
-        [Required(ErrorMessage = "Þifre boþ býrakýlamaz")]
         public string Password { get; set; }
-
-        [Required(ErrorMessage = "Mail boþ býrakýlamaz")]
         public string Mail { get; set; }
         public Nullable<int> Profession { get; set; }
         public string Skills { get; set; }

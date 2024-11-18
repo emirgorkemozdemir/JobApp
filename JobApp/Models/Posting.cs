@@ -19,6 +19,7 @@ namespace JobApp.Models
         public int Company { get; set; }
         public string Description { get; set; }
         public string Skills { get; set; }
+        public string Location { get; set; }
     
         public virtual Company Company1 { get; set; }
     }
