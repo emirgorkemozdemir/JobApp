@@ -16,6 +16,8 @@
         <h1>Kayıt Ol</h1>
         @Html.AntiForgeryToken()
 
+        <span>@ViewBag.errormessage</span>
+
         <div class="form-group">
             @Html.ValidationMessageFor(m => m.Username)
             @Html.TextBoxFor(m => m.Username, new { @class = "input-field", placeholder = "Kullanıcı adınızı girin" })

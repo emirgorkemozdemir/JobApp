@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Web;
 using System.Web.Mvc;
+using System.Data.Entity;
 
 
 namespace JobsApp.Controllers
@@ -26,15 +27,24 @@ namespace JobsApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.User.Add(registering_user);
+                if (db.User.Where(user=>user.Username == registering_user.Username).FirstOrDefault() == null && db.User.Where(user => user.Mail == registering_user.Mail).FirstOrDefault() == null)
+                {
+                    db.User.Add(registering_user);
 
-                registering_user.RegisterDate = DateTime.Now.Date;
+                    registering_user.RegisterDate = DateTime.Now.Date;
 
-                string hashed_password = SHAConverter.ComputeSha256Hash(registering_user.Password);
-                registering_user.Password = hashed_password;
+                    string hashed_password = SHAConverter.ComputeSha256Hash(registering_user.Password);
+                    registering_user.Password = hashed_password;
 
-                db.SaveChanges();
-                return RedirectToAction("Login");
+                    db.SaveChanges();
+                    return RedirectToAction("Login");
+                }
+                else
+                {
+                    ViewBag.errormessage = "Kullanıcı adı veya mail adresi kullanılmakta";
+                    return View();
+                }
+                
             }
             else
             {
@@ -59,6 +69,7 @@ namespace JobsApp.Controllers
                 if (selected_user!=null)
                 {
                     Session["IsUserOnline"] = true;
+                    Session["LoggedUserID"] = selected_user.UserID;
                     return RedirectToAction("UserMainPage");
                 }
                 else
@@ -168,10 +179,100 @@ namespace JobsApp.Controllers
 
         }
 
+
+        [HttpGet]
+        public ActionResult MyProfile()
+        {
+            // Kullanıcının oturumda olup olmadığını kontrol et
+            if (Convert.ToBoolean(Session["IsUserOnline"]) == true)
+            {
+                int userId = Convert.ToInt32(Session["LoggedUserID"]); // Oturumdaki kullanıcı ID'si
+
+                // Veritabanından kullanıcının bilgilerini al
+                User user = db.User.Find(userId);
+
+                if (user != null)
+                {
+                    // Kullanıcı bilgilerini view'a gönder
+                    return View(user);
+                }
+                else
+                {
+                    // Kullanıcı bulunamadı
+                    
+                    return RedirectToAction("Login");
+                }
+            }
+            else
+            {
+                // Oturum açılmamışsa login sayfasına yönlendir
+                return RedirectToAction("Login");
+
+            }
+        }
+
+
+
         [HttpGet]
         public ActionResult UserMainPage()
         {
             return View();
         }
+       
+     
+            // İlan detay sayfasına yönlendiren action
+       [HttpGet]
+       public ActionResult JobDetails(int id)
+       {
+           // İlanı ve ilan sahibini veritabanından al
+           var job = db.Posting.Find(id);
+
+           if (job == null)
+           {
+               // İlan bulunamazsa hata sayfasına yönlendir
+               return HttpNotFound();
+           }
+
+           // Detayları gösteren view'a job modelini gönder
+           return View(job);
+       }
+
+        [HttpGet]
+        public ActionResult ChangeMyPassword()
+        {
+            if (Convert.ToBoolean(Session["IsUserOnline"]) == true)
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Login");
+            }
+        }
+
+        [HttpPost]
+        public ActionResult ChangeMyPassword(string oldpass, string newpass1, string newpass2)
+        {
+            if (Convert.ToBoolean(Session["IsUserOnline"]) == true)
+            {
+                int selected_id = Convert.ToInt32(Session["LoggedUserID"]);
+                var selected_user = db.User.Find(selected_id);
+                if (SHAConverter.ComputeSha256Hash(oldpass) == selected_user.Password)
+                {
+                    if (newpass1==newpass2)
+                    {
+                        selected_user.Password = SHAConverter.ComputeSha256Hash(newpass1);
+                        db.SaveChanges();
+                    }
+                }
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Login");
+            }
+        }
+
     }
+
 }
