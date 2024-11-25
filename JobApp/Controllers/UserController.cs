@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Web;
 using System.Web.Mvc;
 using System.Data.Entity;
+using System.IO;
 
 
 namespace JobsApp.Controllers
@@ -27,7 +28,7 @@ namespace JobsApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (db.User.Where(user=>user.Username == registering_user.Username).FirstOrDefault() == null && db.User.Where(user => user.Mail == registering_user.Mail).FirstOrDefault() == null)
+                if (db.User.Where(user => user.Username == registering_user.Username).FirstOrDefault() == null && db.User.Where(user => user.Mail == registering_user.Mail).FirstOrDefault() == null)
                 {
                     db.User.Add(registering_user);
 
@@ -44,7 +45,7 @@ namespace JobsApp.Controllers
                     ViewBag.errormessage = "Kullanıcı adı veya mail adresi kullanılmakta";
                     return View();
                 }
-                
+
             }
             else
             {
@@ -61,12 +62,12 @@ namespace JobsApp.Controllers
         [HttpPost]
         public ActionResult Login(User posted_user)
         {
-            if (posted_user.Username !=null && posted_user.Password !=null)
+            if (posted_user.Username != null && posted_user.Password != null)
             {
                 string hashed_pass = SHAConverter.ComputeSha256Hash(posted_user.Password);
                 User selected_user = db.User.Where(user => user.Username == posted_user.Username && user.Password == hashed_pass).FirstOrDefault();
 
-                if (selected_user!=null)
+                if (selected_user != null)
                 {
                     Session["IsUserOnline"] = true;
                     Session["LoggedUserID"] = selected_user.UserID;
@@ -77,14 +78,14 @@ namespace JobsApp.Controllers
                     ViewBag.errmsg = "Kullanıcı adı veya şifre yanlış";
                     return View();
                 }
-             
+
             }
             else
             {
                 ViewBag.errmsg = "Kullanıcı adı veya şifre boş girilemez";
                 return View();
             }
-           
+
         }
 
         public List<SelectListItem> GetProfessions()
@@ -105,18 +106,18 @@ namespace JobsApp.Controllers
         public JsonResult GetSkills(int professionId)
         {
             List<SelectListItem> listItems = new List<SelectListItem>();
-            var skills = db.Skill.Where(s=>s.Profession==professionId).ToList();
+            var skills = db.Skill.Where(s => s.Profession == professionId).ToList();
             foreach (var s in skills)
             {
                 SelectListItem item = new SelectListItem();
                 item.Text = s.Name;
-                item.Value =s.SkillID.ToString();
+                item.Value = s.SkillID.ToString();
                 listItems.Add(item);
             }
-            return Json(listItems,JsonRequestBehavior.AllowGet);
+            return Json(listItems, JsonRequestBehavior.AllowGet);
         }
 
-    
+
 
         // Profil Düzenleme Ekranı için bir action açtık. HttpGet oldugu için sayfa 
         // yüklenirken burası çalışacak. Bir id alyıoruz. Bunu daha sonra diger sayfalardan
@@ -124,7 +125,7 @@ namespace JobsApp.Controllers
         [HttpGet]
         public ActionResult EditProfile(int id)
         {
-            if (Convert.ToBoolean(Session["IsUserOnline"])==true)
+            if (Convert.ToBoolean(Session["IsUserOnline"]) == true)
             {
                 // Gelen id degerine göre kullanıcıyı bulup sayfaya gönderiyoruz.
                 // Bu sayede sayfada kullanıcının bilgileri dolu gelecek.
@@ -136,7 +137,7 @@ namespace JobsApp.Controllers
             {
                 return RedirectToAction("Login");
             }
-         
+
         }
 
         // Sayfadan düzenle butonuna basıldıgında burası çalışacak (post)
@@ -144,38 +145,36 @@ namespace JobsApp.Controllers
         [HttpPost]
         public ActionResult EditProfile(User posted_user)
         {
+
+            // Giriş yapılı mı kontorlü
             if (Convert.ToBoolean(Session["IsUserOnline"]) == true)
             {
-                // Giriş yapılı mı kontorlü
-                if (Convert.ToBoolean(Session["IsUserOnline"]) == true)
+                // Model valid mi kontrolü
+                if (ModelState.IsValid)
                 {
-                    // Model valid mi kontrolü
-                    if (ModelState.IsValid)
-                    {
-                        // Burada solda kalanı veritabanındaki kullanıcı gibi düşünün.
-                        // Sagdaki de posttan gelen kullanıcı.
-                        // Soldaki degerleri sagdakiler ile degiştirip kaydediyoruz.
-                        User db_user = db.User.Find(posted_user.UserID);
-                        db_user.Name = posted_user.Name;
-                        db_user.Surname = posted_user.Surname;
-                        db_user.Phone = posted_user.Phone;
-                        db_user.Profession = posted_user.Profession;
-                        db_user.Skills = posted_user.Skills;
-                        db.SaveChanges();
-                        return RedirectToAction("MyProfile");
-                    }
-                    else
-                    {
-                        ViewBag.proffesions = GetProfessions();
-                        return View();
-                    }
+                    // Burada solda kalanı veritabanındaki kullanıcı gibi düşünün.
+                    // Sagdaki de posttan gelen kullanıcı.
+                    // Soldaki degerleri sagdakiler ile degiştirip kaydediyoruz.
+                    User db_user = db.User.Find(posted_user.UserID);
+                    db_user.Name = posted_user.Name;
+                    db_user.Surname = posted_user.Surname;
+                    db_user.Phone = posted_user.Phone;
+                    db_user.Profession = posted_user.Profession;
+                    db_user.Skills = posted_user.Skills;
+                    db.SaveChanges();
+                    return RedirectToAction("MyProfile");
                 }
-                return RedirectToAction("MyProfile");
+                else
+                {
+                    ViewBag.proffesions = GetProfessions();
+                    return View();
+                }
             }
             else
             {
                 return RedirectToAction("Login");
             }
+
 
         }
 
@@ -199,7 +198,7 @@ namespace JobsApp.Controllers
                 else
                 {
                     // Kullanıcı bulunamadı
-                    
+
                     return RedirectToAction("Login");
                 }
             }
@@ -216,26 +215,84 @@ namespace JobsApp.Controllers
         [HttpGet]
         public ActionResult UserMainPage()
         {
-            return View();
+            List<Posting> postings = db.Posting.ToList();
+
+            List<Posting> last_postings = new List<Posting>();
+
+            foreach (Posting posting in postings)
+            {
+                var skills = posting.Skills.Split(',');
+                posting.SkillsList = new List<Skill>();
+                foreach (string skill_id in skills)
+                {
+                    Skill selected = db.Skill.Find(Convert.ToInt32(skill_id));
+
+                    posting.SkillsList.Add(selected);
+                }
+                last_postings.Add(posting);
+            }
+            return View(last_postings);
         }
-       
-     
-            // İlan detay sayfasına yönlendiren action
-       [HttpGet]
-       public ActionResult JobDetails(int id)
-       {
-           // İlanı ve ilan sahibini veritabanından al
-           var job = db.Posting.Find(id);
 
-           if (job == null)
-           {
-               // İlan bulunamazsa hata sayfasına yönlendir
-               return HttpNotFound();
-           }
+        public string CheckSkills(int user_id, int job_id)
+        {
+            var selected_user = db.User.Find(user_id);
+            var selected_job = db.Posting.Find(job_id);
 
-           // Detayları gösteren view'a job modelini gönder
-           return View(job);
-       }
+            if (selected_user.Skills==null)
+            {
+                return "Yetenek eşleşmesi için profilinizi doldurunuz";
+            }
+
+            var user_skills = selected_user.Skills.Split(',');
+            var job_skills = selected_job.Skills.Split(',');
+
+            int matched_skill = 0;
+            foreach (var yetenek in job_skills)
+            {
+                if (user_skills.Contains(yetenek))
+                {
+                    matched_skill++;
+                }
+            }
+
+            return $"Bu iş ilanı için {job_skills.Count()} aranan yetenek içerisinden {matched_skill} tanesine sahipsiniz";
+        }
+
+        // İlan detay sayfasına yönlendiren action
+        [HttpGet]
+        public ActionResult JobDetails(int job_id)
+        {
+            if (Convert.ToBoolean(Session["IsUserOnline"]) == true)
+            {
+                // İlanı ve ilan sahibini veritabanından al
+                var job = db.Posting.Find(job_id);
+
+                if (job == null)
+                {
+                    // İlan bulunamazsa hata sayfasına yönlendir
+                    return HttpNotFound();
+                }
+
+
+                var skills = job.Skills.Split(',');
+                job.SkillsList = new List<Skill>();
+                foreach (string skill_id in skills)
+                {
+                    Skill selected = db.Skill.Find(Convert.ToInt32(skill_id));
+
+                    job.SkillsList.Add(selected);
+                }
+
+                ViewBag.matched = CheckSkills(Convert.ToInt32(Session["LoggedUserID"]), job_id);
+                // Detayları gösteren view'a job modelini gönder
+                return View(job);
+            }
+            else
+            {
+                return RedirectToAction("Login");
+            }
+        }
 
         [HttpGet]
         public ActionResult ChangeMyPassword()
@@ -259,7 +316,7 @@ namespace JobsApp.Controllers
                 var selected_user = db.User.Find(selected_id);
                 if (SHAConverter.ComputeSha256Hash(oldpass) == selected_user.Password)
                 {
-                    if (newpass1==newpass2)
+                    if (newpass1 == newpass2)
                     {
                         selected_user.Password = SHAConverter.ComputeSha256Hash(newpass1);
                         db.SaveChanges();
@@ -273,6 +330,40 @@ namespace JobsApp.Controllers
             }
         }
 
+        [HttpPost]
+        public ActionResult UploadCv(int companyid)
+        {
+            if (Request.Files.Count > 0)
+            {
+                HttpPostedFileBase postedFile = Request.Files["myfile"];
+                string path = Server.MapPath("~/Uploads/");
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                int selected_user = Convert.ToInt32(Session["LoggedUserID"]);
+                postedFile.SaveAs(path + Path.GetFileName(postedFile.FileName));
+
+                // Cv'yi kullanıcıyı da atayarak veritabanına kaydettim.
+                CV saving_cv = new CV();
+                saving_cv.Link = (path + Path.GetFileName(postedFile.FileName));
+                saving_cv.SelectedUser = selected_user;
+                db.CV.Add(saving_cv);
+                db.SaveChanges();
+
+                // Kullanıcının sahibi oldugu cv'nin idsini seçmem lazım.
+                var selected_cv = db.CV.Where(cv => cv.SelectedUser == selected_user).FirstOrDefault();
+
+                Application application = new Application();
+                application.CV =Convert.ToInt32(selected_cv.CvID);
+                application.Companyy = companyid;
+                application.Userr = selected_user;
+                db.Application.Add(application);
+                db.SaveChanges();
+            }
+
+            return RedirectToAction("UserMainPage");
+        }
     }
 
 }

@@ -17,6 +17,7 @@ namespace JobApp.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Company()
         {
+            this.Application = new HashSet<Application>();
             this.Posting = new HashSet<Posting>();
         }
     
@@ -27,6 +28,8 @@ namespace JobApp.Models
         public string Map { get; set; }
         public string TaxNo { get; set; }
     
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Application> Application { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Posting> Posting { get; set; }
     }

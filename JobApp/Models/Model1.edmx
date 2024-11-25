@@ -5,6 +5,15 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
       <Schema Namespace="JobsDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Application">
+          <Key>
+            <PropertyRef Name="ApplicationID" />
+          </Key>
+          <Property Name="ApplicationID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Userr" Type="int" Nullable="false" />
+          <Property Name="CV" Type="int" Nullable="false" />
+          <Property Name="Companyy" Type="int" Nullable="false" />
+        </EntityType>
         <EntityType Name="Company">
           <Key>
             <PropertyRef Name="CompanyID" />
@@ -75,6 +84,42 @@
           <Property Name="Profession" Type="int" />
           <Property Name="Skills" Type="nvarchar" MaxLength="20" />
         </EntityType>
+        <Association Name="FK_Application_Company">
+          <End Role="Company" Type="Self.Company" Multiplicity="1" />
+          <End Role="Application" Type="Self.Application" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Company">
+              <PropertyRef Name="CompanyID" />
+            </Principal>
+            <Dependent Role="Application">
+              <PropertyRef Name="Companyy" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Application_CV">
+          <End Role="CV" Type="Self.CV" Multiplicity="1" />
+          <End Role="Application" Type="Self.Application" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CV">
+              <PropertyRef Name="CvID" />
+            </Principal>
+            <Dependent Role="Application">
+              <PropertyRef Name="CV" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Application_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Application" Type="Self.Application" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="Application">
+              <PropertyRef Name="Userr" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_CV_User">
           <End Role="User" Type="Self.User" Multiplicity="1" />
           <End Role="CV" Type="Self.CV" Multiplicity="*" />
@@ -143,6 +188,7 @@
         </Function>
         <Function Name="sp_upgraddiagrams" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
         <EntityContainer Name="JobsDBModelStoreContainer">
+          <EntitySet Name="Application" EntityType="Self.Application" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Company" EntityType="Self.Company" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CV" EntityType="Self.CV" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Posting" EntityType="Self.Posting" Schema="dbo" store:Type="Tables" />
@@ -150,6 +196,18 @@
           <EntitySet Name="Skill" EntityType="Self.Skill" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Application_Company" Association="Self.FK_Application_Company">
+            <End Role="Company" EntitySet="Company" />
+            <End Role="Application" EntitySet="Application" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Application_CV" Association="Self.FK_Application_CV">
+            <End Role="CV" EntitySet="CV" />
+            <End Role="Application" EntitySet="Application" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Application_User" Association="Self.FK_Application_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="Application" EntitySet="Application" />
+          </AssociationSet>
           <AssociationSet Name="FK_CV_User" Association="Self.FK_CV_User">
             <End Role="User" EntitySet="User" />
             <End Role="CV" EntitySet="CV" />
@@ -168,6 +226,18 @@
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="JobsDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Application">
+          <Key>
+            <PropertyRef Name="ApplicationID" />
+          </Key>
+          <Property Name="ApplicationID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Userr" Type="Int32" Nullable="false" />
+          <Property Name="CV" Type="Int32" Nullable="false" />
+          <Property Name="Companyy" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Company" Relationship="Self.FK_Application_Company" FromRole="Application" ToRole="Company" />
+          <NavigationProperty Name="CV1" Relationship="Self.FK_Application_CV" FromRole="Application" ToRole="CV" />
+          <NavigationProperty Name="User" Relationship="Self.FK_Application_User" FromRole="Application" ToRole="User" />
+        </EntityType>
         <EntityType Name="Company">
           <Key>
             <PropertyRef Name="CompanyID" />
@@ -178,6 +248,7 @@
           <Property Name="Phone" Type="String" MaxLength="15" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Map" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="TaxNo" Type="String" MaxLength="15" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Application" Relationship="Self.FK_Application_Company" FromRole="Company" ToRole="Application" />
           <NavigationProperty Name="Posting" Relationship="Self.FK_Posting_Company" FromRole="Company" ToRole="Posting" />
         </EntityType>
         <EntityType Name="CV">
@@ -187,6 +258,7 @@
           <Property Name="CvID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Link" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="SelectedUser" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Application" Relationship="Self.FK_Application_CV" FromRole="CV" ToRole="Application" />
           <NavigationProperty Name="User" Relationship="Self.FK_CV_User" FromRole="CV" ToRole="User" />
         </EntityType>
         <EntityType Name="Posting">
@@ -242,8 +314,45 @@
           <Property Name="Mail" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Profession" Type="Int32" />
           <Property Name="Skills" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Application" Relationship="Self.FK_Application_User" FromRole="User" ToRole="Application" />
           <NavigationProperty Name="CV" Relationship="Self.FK_CV_User" FromRole="User" ToRole="CV" />
         </EntityType>
+        <Association Name="FK_Application_Company">
+          <End Role="Company" Type="Self.Company" Multiplicity="1" />
+          <End Role="Application" Type="Self.Application" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Company">
+              <PropertyRef Name="CompanyID" />
+            </Principal>
+            <Dependent Role="Application">
+              <PropertyRef Name="Companyy" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Application_CV">
+          <End Role="CV" Type="Self.CV" Multiplicity="1" />
+          <End Role="Application" Type="Self.Application" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CV">
+              <PropertyRef Name="CvID" />
+            </Principal>
+            <Dependent Role="Application">
+              <PropertyRef Name="CV" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Application_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Application" Type="Self.Application" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="UserID" />
+            </Principal>
+            <Dependent Role="Application">
+              <PropertyRef Name="Userr" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Posting_Company">
           <End Role="Company" Type="Self.Company" Multiplicity="1" />
           <End Role="Posting" Type="Self.Posting" Multiplicity="*" />
@@ -281,6 +390,7 @@
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="JobsDBEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Application" EntityType="Self.Application" />
           <EntitySet Name="Company" EntityType="Self.Company" />
           <EntitySet Name="CV" EntityType="Self.CV" />
           <EntitySet Name="Posting" EntityType="Self.Posting" />
@@ -288,6 +398,18 @@
           <EntitySet Name="Skill" EntityType="Self.Skill" />
           <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" />
           <EntitySet Name="User" EntityType="Self.User" />
+          <AssociationSet Name="FK_Application_Company" Association="Self.FK_Application_Company">
+            <End Role="Company" EntitySet="Company" />
+            <End Role="Application" EntitySet="Application" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Application_CV" Association="Self.FK_Application_CV">
+            <End Role="CV" EntitySet="CV" />
+            <End Role="Application" EntitySet="Application" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Application_User" Association="Self.FK_Application_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="Application" EntitySet="Application" />
+          </AssociationSet>
           <AssociationSet Name="FK_Posting_Company" Association="Self.FK_Posting_Company">
             <End Role="Company" EntitySet="Company" />
             <End Role="Posting" EntitySet="Posting" />
@@ -348,6 +470,16 @@
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="JobsDBModelStoreContainer" CdmEntityContainer="JobsDBEntities">
+          <EntitySetMapping Name="Application">
+            <EntityTypeMapping TypeName="JobsDBModel.Application">
+              <MappingFragment StoreEntitySet="Application">
+                <ScalarProperty Name="ApplicationID" ColumnName="ApplicationID" />
+                <ScalarProperty Name="Userr" ColumnName="Userr" />
+                <ScalarProperty Name="CV" ColumnName="CV" />
+                <ScalarProperty Name="Companyy" ColumnName="Companyy" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="Company">
             <EntityTypeMapping TypeName="JobsDBModel.Company">
               <MappingFragment StoreEntitySet="Company">

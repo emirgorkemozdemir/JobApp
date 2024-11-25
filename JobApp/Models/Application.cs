@@ -12,17 +12,15 @@ namespace JobApp.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class Posting
+    public partial class Application
     {
-        public int PostingID { get; set; }
-        public string Title { get; set; }
-        public int Company { get; set; }
-        public string Description { get; set; }
-        public string Skills { get; set; }
-        public string Location { get; set; }
-
-        public List<Skill> SkillsList { get; set; }
+        public int ApplicationID { get; set; }
+        public int Userr { get; set; }
+        public int CV { get; set; }
+        public int Companyy { get; set; }
     
-        public virtual Company Company1 { get; set; }
+        public virtual Company Company { get; set; }
+        public virtual CV CV1 { get; set; }
+        public virtual User User { get; set; }
     }
 }
