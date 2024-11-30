@@ -31,7 +31,9 @@ namespace JobApp.Models
         public string Mail { get; set; }
         public Nullable<int> Profession { get; set; }
         public string Skills { get; set; }
-    
+
+        public List<Skill> SkillsList { get; set; }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Application> Application { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

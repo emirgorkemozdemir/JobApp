@@ -36,11 +36,19 @@
         </ul>
     </div>
 
-    @using (Html.BeginForm("UploadCv","User",FormMethod.Post, new { enctype = "multipart/form-data" }))
+    @if (ViewBag.is_user_applied == true)
     {
-       <input type="file" name="myfile" id="myfile" value="Cv Yükle" />
-       <input name="companyid" id="companyid" type="hidden" value="@Model.Company1.CompanyID" />
-       <input type="submit" value="Başvur" />
+        <div>Bu işe zaten başvurdunuz</div>
+    }
+    else
+    {
+        using (Html.BeginForm("UploadCvAndApply", "User", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <input type="file" name="myfile" id="myfile" value="Cv Yükle" />
+            <input name="companyid" id="companyid" type="hidden" value="@Model.Company1.CompanyID" />
+            <input name="postingid" id="postingid" type="hidden" value="@Model.PostingID" />
+            <input type="submit" value="Başvur" />
+        }
     }
 
 </body>

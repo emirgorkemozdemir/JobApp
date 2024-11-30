@@ -192,7 +192,16 @@ namespace JobsApp.Controllers
 
                 if (user != null)
                 {
-                    // Kullanıcı bilgilerini view'a gönder
+                    var proffesion = db.Profession.Where(p => p.ProfessionID == user.Profession).FirstOrDefault().Name;
+                    var skills = user.Skills.Split(',');
+                    user.SkillsList = new List<Skill>();
+                    foreach (string skill_id in skills)
+                    {
+                        Skill selected = db.Skill.Find(Convert.ToInt32(skill_id));
+
+                        user.SkillsList.Add(selected);
+                    }
+                    ViewBag.meslek = proffesion;
                     return View(user);
                 }
                 else
@@ -239,7 +248,7 @@ namespace JobsApp.Controllers
             var selected_user = db.User.Find(user_id);
             var selected_job = db.Posting.Find(job_id);
 
-            if (selected_user.Skills==null)
+            if (selected_user.Skills == null)
             {
                 return "Yetenek eşleşmesi için profilinizi doldurunuz";
             }
@@ -282,6 +291,14 @@ namespace JobsApp.Controllers
                     Skill selected = db.Skill.Find(Convert.ToInt32(skill_id));
 
                     job.SkillsList.Add(selected);
+                }
+
+                int selected_user = Convert.ToInt32(Session["LoggedUserID"]);
+                var application = db.Application.Where(a => a.Userr == selected_user && a.Postingg == job_id).FirstOrDefault();
+
+                if (application != null)
+                {
+                    ViewBag.is_user_applied = true;
                 }
 
                 ViewBag.matched = CheckSkills(Convert.ToInt32(Session["LoggedUserID"]), job_id);
@@ -331,16 +348,13 @@ namespace JobsApp.Controllers
         }
 
         [HttpPost]
-        public ActionResult UploadCv(int companyid)
+        public ActionResult UploadCvAndApply(int companyid, int postingid)
         {
             if (Request.Files.Count > 0)
             {
                 HttpPostedFileBase postedFile = Request.Files["myfile"];
                 string path = Server.MapPath("~/Uploads/");
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
+
                 int selected_user = Convert.ToInt32(Session["LoggedUserID"]);
                 postedFile.SaveAs(path + Path.GetFileName(postedFile.FileName));
 
@@ -352,17 +366,59 @@ namespace JobsApp.Controllers
                 db.SaveChanges();
 
                 // Kullanıcının sahibi oldugu cv'nin idsini seçmem lazım.
-                var selected_cv = db.CV.Where(cv => cv.SelectedUser == selected_user).FirstOrDefault();
+                var selected_cv = db.CV.OrderByDescending(cv => cv.SelectedUser == selected_user).FirstOrDefault();
 
                 Application application = new Application();
-                application.CV =Convert.ToInt32(selected_cv.CvID);
+                application.CV = Convert.ToInt32(selected_cv.CvID);
                 application.Companyy = companyid;
+                application.Postingg = postingid;
                 application.Userr = selected_user;
                 db.Application.Add(application);
                 db.SaveChanges();
             }
 
             return RedirectToAction("UserMainPage");
+        }
+
+        [HttpGet]
+        public ActionResult ManageCV(int id)
+        {
+            var selected_cvs = db.CV.Where(cv => cv.SelectedUser == id).ToList();
+            if (selected_cvs.Count() >= 5)
+            {
+                ViewBag.cvmsg = true;
+            }
+            return View(selected_cvs);
+        }
+
+        [HttpPost]
+        public ActionResult UploadCv()
+        {
+            int selected_user = Convert.ToInt32(Session["LoggedUserID"]);
+            if (Request.Files.Count > 0)
+            {
+                HttpPostedFileBase postedFile = Request.Files["myfile"];
+                string path = Server.MapPath("~/Uploads/");
+
+               
+                postedFile.SaveAs(path + Path.GetFileName(postedFile.FileName));
+
+                // Cv'yi kullanıcıyı da atayarak veritabanına kaydettim.
+                CV saving_cv = new CV();
+                saving_cv.Link = (path + Path.GetFileName(postedFile.FileName));
+                saving_cv.SelectedUser = selected_user;
+                db.CV.Add(saving_cv);
+                db.SaveChanges();
+            }
+            return RedirectToAction("MyProfile");
+        }
+
+        public ActionResult DeleteCV(int cvid)
+        {
+            var selected_cv = db.CV.Find(cvid);
+            db.CV.Remove(selected_cv);
+            db.SaveChanges();
+            return RedirectToAction("MyProfile");
         }
     }
 

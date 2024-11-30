@@ -14,6 +14,12 @@ namespace JobApp.Models
     
     public partial class Posting
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Posting()
+        {
+            this.Application = new HashSet<Application>();
+        }
+    
         public int PostingID { get; set; }
         public string Title { get; set; }
         public int Company { get; set; }
@@ -23,6 +29,8 @@ namespace JobApp.Models
 
         public List<Skill> SkillsList { get; set; }
     
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Application> Application { get; set; }
         public virtual Company Company1 { get; set; }
     }
 }

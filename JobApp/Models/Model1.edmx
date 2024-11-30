@@ -13,6 +13,7 @@
           <Property Name="Userr" Type="int" Nullable="false" />
           <Property Name="CV" Type="int" Nullable="false" />
           <Property Name="Companyy" Type="int" Nullable="false" />
+          <Property Name="Postingg" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Company">
           <Key>
@@ -105,6 +106,18 @@
             </Principal>
             <Dependent Role="Application">
               <PropertyRef Name="CV" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Application_Posting">
+          <End Role="Posting" Type="Self.Posting" Multiplicity="1" />
+          <End Role="Application" Type="Self.Application" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Posting">
+              <PropertyRef Name="PostingID" />
+            </Principal>
+            <Dependent Role="Application">
+              <PropertyRef Name="Postingg" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -204,6 +217,10 @@
             <End Role="CV" EntitySet="CV" />
             <End Role="Application" EntitySet="Application" />
           </AssociationSet>
+          <AssociationSet Name="FK_Application_Posting" Association="Self.FK_Application_Posting">
+            <End Role="Posting" EntitySet="Posting" />
+            <End Role="Application" EntitySet="Application" />
+          </AssociationSet>
           <AssociationSet Name="FK_Application_User" Association="Self.FK_Application_User">
             <End Role="User" EntitySet="User" />
             <End Role="Application" EntitySet="Application" />
@@ -234,8 +251,10 @@
           <Property Name="Userr" Type="Int32" Nullable="false" />
           <Property Name="CV" Type="Int32" Nullable="false" />
           <Property Name="Companyy" Type="Int32" Nullable="false" />
+          <Property Name="Postingg" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Company" Relationship="Self.FK_Application_Company" FromRole="Application" ToRole="Company" />
           <NavigationProperty Name="CV1" Relationship="Self.FK_Application_CV" FromRole="Application" ToRole="CV" />
+          <NavigationProperty Name="Posting" Relationship="Self.FK_Application_Posting" FromRole="Application" ToRole="Posting" />
           <NavigationProperty Name="User" Relationship="Self.FK_Application_User" FromRole="Application" ToRole="User" />
         </EntityType>
         <EntityType Name="Company">
@@ -271,6 +290,7 @@
           <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Skills" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Location" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="Application" Relationship="Self.FK_Application_Posting" FromRole="Posting" ToRole="Application" />
           <NavigationProperty Name="Company1" Relationship="Self.FK_Posting_Company" FromRole="Posting" ToRole="Company" />
         </EntityType>
         <EntityType Name="Profession">
@@ -341,6 +361,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Application_Posting">
+          <End Role="Posting" Type="Self.Posting" Multiplicity="1" />
+          <End Role="Application" Type="Self.Application" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Posting">
+              <PropertyRef Name="PostingID" />
+            </Principal>
+            <Dependent Role="Application">
+              <PropertyRef Name="Postingg" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Application_User">
           <End Role="User" Type="Self.User" Multiplicity="1" />
           <End Role="Application" Type="Self.Application" Multiplicity="*" />
@@ -404,6 +436,10 @@
           </AssociationSet>
           <AssociationSet Name="FK_Application_CV" Association="Self.FK_Application_CV">
             <End Role="CV" EntitySet="CV" />
+            <End Role="Application" EntitySet="Application" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Application_Posting" Association="Self.FK_Application_Posting">
+            <End Role="Posting" EntitySet="Posting" />
             <End Role="Application" EntitySet="Application" />
           </AssociationSet>
           <AssociationSet Name="FK_Application_User" Association="Self.FK_Application_User">
@@ -477,6 +513,7 @@
                 <ScalarProperty Name="Userr" ColumnName="Userr" />
                 <ScalarProperty Name="CV" ColumnName="CV" />
                 <ScalarProperty Name="Companyy" ColumnName="Companyy" />
+                <ScalarProperty Name="Postingg" ColumnName="Postingg" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

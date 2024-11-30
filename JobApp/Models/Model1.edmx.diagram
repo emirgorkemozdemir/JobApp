@@ -4,17 +4,18 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="4b01b0638b904da281ea360c1e7d580d" Name="Diagram1">
-        <EntityTypeShape EntityType="JobsDBModel.Application" Width="1.5" PointX="5.25" PointY="3.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="JobsDBModel.Company" Width="1.5" PointX="3" PointY="1.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="JobsDBModel.CV" Width="1.5" PointX="3" PointY="5.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="JobsDBModel.Posting" Width="1.5" PointX="5.25" PointY="7.625" IsExpanded="true" />
+      <Diagram DiagramId="eb1b65f851094169bae521a0a3e29c93" Name="Diagram1">
+        <EntityTypeShape EntityType="JobsDBModel.Application" Width="1.5" PointX="5.25" PointY="3.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="JobsDBModel.Company" Width="1.5" PointX="3" PointY="2.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="JobsDBModel.CV" Width="1.5" PointX="3" PointY="6.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="JobsDBModel.Posting" Width="1.5" PointX="3" PointY="9.625" IsExpanded="true" />
         <EntityTypeShape EntityType="JobsDBModel.Profession" Width="1.5" PointX="5.75" PointY="1" IsExpanded="true" />
         <EntityTypeShape EntityType="JobsDBModel.Skill" Width="1.5" PointX="8" PointY="0.875" IsExpanded="true" />
         <EntityTypeShape EntityType="JobsDBModel.sysdiagrams" Width="1.5" PointX="7.75" PointY="3.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="JobsDBModel.User" Width="1.5" PointX="0.75" PointY="2" IsExpanded="true" />
+        <EntityTypeShape EntityType="JobsDBModel.User" Width="1.5" PointX="0.75" PointY="2.125" IsExpanded="true" />
         <AssociationConnector Association="JobsDBModel.FK_Application_Company" ManuallyRouted="false" />
         <AssociationConnector Association="JobsDBModel.FK_Application_CV" ManuallyRouted="false" />
+        <AssociationConnector Association="JobsDBModel.FK_Application_Posting" ManuallyRouted="false" />
         <AssociationConnector Association="JobsDBModel.FK_Application_User" ManuallyRouted="false" />
         <AssociationConnector Association="JobsDBModel.FK_Posting_Company" ManuallyRouted="false" />
         <AssociationConnector Association="JobsDBModel.FK_CV_User" ManuallyRouted="false" />

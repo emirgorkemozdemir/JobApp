@@ -18,9 +18,11 @@ namespace JobApp.Models
         public int Userr { get; set; }
         public int CV { get; set; }
         public int Companyy { get; set; }
+        public int Postingg { get; set; }
     
         public virtual Company Company { get; set; }
         public virtual CV CV1 { get; set; }
+        public virtual Posting Posting { get; set; }
         public virtual User User { get; set; }
     }
 }
