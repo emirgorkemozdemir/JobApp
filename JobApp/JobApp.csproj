@@ -129,6 +129,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\SHAConverter.cs" />
+    <Compile Include="Controllers\CompanyController.cs" />
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -197,6 +198,7 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\CompanyPost.css" />
     <Content Include="Content\logreg.css" />
     <Content Include="Content\Main.css" />
     <Content Include="favicon.ico" />
@@ -249,10 +251,14 @@
     <Content Include="Views\User\Login.cshtml" />
     <Content Include="Views\User\UserMainPage.cshtml" />
     <Content Include="Views\User\MyProfile.cshtml" />
-    <Content Include="Views\Job\JobDetails.cshtml" />
     <Content Include="Views\User\ChangeMyPassword.cshtml" />
     <Content Include="Views\User\JobDetails.cshtml" />
     <Content Include="Views\User\ManageCV.cshtml" />
+    <Content Include="Views\Company\CreateJobPosting.cshtml" />
+    <Content Include="Views\Company\ViewJobPostings.cshtml" />
+    <Content Include="Views\Company\EditJobPosting.cshtml" />
+    <Content Include="Views\Company\Register.cshtml" />
+    <Content Include="Views\Company\Login.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -27,6 +27,8 @@ namespace JobApp.Models
         public string Phone { get; set; }
         public string Map { get; set; }
         public string TaxNo { get; set; }
+        public string Cusername { get; set; }
+        public string Cpassword { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Application> Application { get; set; }

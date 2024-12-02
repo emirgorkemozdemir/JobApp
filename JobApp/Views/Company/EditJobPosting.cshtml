@@ -1,0 +1,68 @@
+﻿@using JobApp.Models
+@model Posting
+@{
+    ViewBag.Title = "Edit Job Posting";
+}
+
+<head>
+    <script src="~/Scripts/jquery-3.4.1.js"></script>
+</head>
+
+<h2>Edit Job Posting</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Title)
+        @Html.TextBoxFor(model => model.Title, new { @class = "form-control" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Description)
+        @Html.TextAreaFor(model => model.Description, new { @class = "form-control" })
+    </div>
+
+    @Html.ValidationMessageFor(m => m.Profession)
+    @Html.DropDownListFor(m => m.Profession, new SelectList(ViewBag.proffesions, "Value", "Text"), new { @id = "professions" })
+
+    <div id="skillsdiv">
+        <select id="skills">
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Posting</button>
+}
+
+
+<script type="text/javascript">
+    function get_skills() {
+        $.ajax({
+            type: "get",
+            url: "/Company/GetSkills",
+            data: { professionId: $('#professions').val() },
+            datatype: "json",
+            traditional: true,
+            success: function (data) {
+                var result = "<select id='skills'>";
+                for (var i = 0; i < data.length; i++) {
+                    result = result + '<option value=' + data[i].Value + '>' + data[i].Text + '</option>';
+                }
+                result = result + '</select>';
+                $('#skillsdiv').html(result);
+            },
+            error: function () {
+                console.log('hata');
+            }
+        });
+    }
+
+
+    $(document).ready(function () {
+        get_skills();
+        $('#professions').change(function () {
+            get_skills();
+        });
+    });
+</script>

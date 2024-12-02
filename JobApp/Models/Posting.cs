@@ -25,12 +25,14 @@ namespace JobApp.Models
         public int Company { get; set; }
         public string Description { get; set; }
         public string Skills { get; set; }
-        public string Location { get; set; }
 
         public List<Skill> SkillsList { get; set; }
+        public string Location { get; set; }
+        public Nullable<int> Profession { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Application> Application { get; set; }
         public virtual Company Company1 { get; set; }
+        public virtual Profession Profession1 { get; set; }
     }
 }

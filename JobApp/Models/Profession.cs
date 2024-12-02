@@ -17,12 +17,16 @@ namespace JobApp.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Profession()
         {
+            this.Posting = new HashSet<Posting>();
             this.Skill = new HashSet<Skill>();
         }
     
         public int ProfessionID { get; set; }
         public string Name { get; set; }
+
     
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Posting> Posting { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Skill> Skill { get; set; }
     }
