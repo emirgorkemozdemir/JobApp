@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Data.Entity;
 using System.IO;
+using System.Collections.ObjectModel;
 
 
 namespace JobsApp.Controllers
@@ -123,10 +124,11 @@ namespace JobsApp.Controllers
         // yüklenirken burası çalışacak. Bir id alyıoruz. Bunu daha sonra diger sayfalardan
         // çalıştıracagız.
         [HttpGet]
-        public ActionResult EditProfile(int id)
+        public ActionResult EditProfile()
         {
             if (Convert.ToBoolean(Session["IsUserOnline"]) == true)
             {
+                int id = Convert.ToInt32(Session["LoggedUserID"]);
                 // Gelen id degerine göre kullanıcıyı bulup sayfaya gönderiyoruz.
                 // Bu sayede sayfada kullanıcının bilgileri dolu gelecek.
                 ViewBag.proffesions = GetProfessions();
@@ -143,7 +145,7 @@ namespace JobsApp.Controllers
         // Sayfadan düzenle butonuna basıldıgında burası çalışacak (post)
         // Düzenlenecek olan kullanıcı buraya gönderilecek.
         [HttpPost]
-        public ActionResult EditProfile(User posted_user)
+        public ActionResult EditProfile(User posted_user, FormCollection collection)
         {
 
             // Giriş yapılı mı kontorlü
@@ -152,6 +154,21 @@ namespace JobsApp.Controllers
                 // Model valid mi kontrolü
                 if (ModelState.IsValid)
                 {
+                    var keys = collection.AllKeys.Where(key => key.Contains("checkbox")).ToList();
+                    string selected_skills = "";
+                    for (int i = 0; i < keys.Count; i++)
+                    {
+                        var selected = collection.Get(keys[i]);
+                        if (i == 0)
+                        {
+                            selected_skills += selected;
+                        }
+                        else
+                        {
+                            selected_skills += "," + selected;
+                        }
+                    }
+
                     // Burada solda kalanı veritabanındaki kullanıcı gibi düşünün.
                     // Sagdaki de posttan gelen kullanıcı.
                     // Soldaki degerleri sagdakiler ile degiştirip kaydediyoruz.
@@ -160,7 +177,7 @@ namespace JobsApp.Controllers
                     db_user.Surname = posted_user.Surname;
                     db_user.Phone = posted_user.Phone;
                     db_user.Profession = posted_user.Profession;
-                    db_user.Skills = posted_user.Skills;
+                    db_user.Skills = selected_skills;
                     db.SaveChanges();
                     return RedirectToAction("MyProfile");
                 }

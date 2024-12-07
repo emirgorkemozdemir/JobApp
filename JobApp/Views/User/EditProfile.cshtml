@@ -27,9 +27,7 @@
     @Html.DropDownListFor(m => m.Profession, new SelectList(ViewBag.proffesions, "Value", "Text"), new { @id = "professions" })
 
     <div id="skillsdiv">
-       <select id="skills">
-
-       </select>
+    
     </div>
 
     <input type="submit" value="Edit" />
@@ -45,11 +43,12 @@
             datatype: "json",
             traditional: true,
             success: function (data) {
-                var result = "<select id='skills'>";
+                var result = "";
                 for (var i = 0; i < data.length; i++) {
-                    result = result + '<option value=' + data[i].Value + '>' + data[i].Text + '</option>';
+                    result = result + '<label for=' + data[i].Text + ' > ' + data[i].Text + ' </label>';
+                    result = result + '<input type=' + "checkbox" + ' value=' + data[i].Value + ' name=' + "checkbox" + i + ' />';
+                    result = result + '<br/>';
                 }
-                result = result + '</select>';
                 $('#skillsdiv').html(result);
             },
             error: function () {

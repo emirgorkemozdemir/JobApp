@@ -2,16 +2,18 @@
 using JobApp.Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
 
-    namespace JobsApp.Controllers
+namespace JobsApp.Controllers
+{
+    public class CompanyController : Controller
     {
-        public class CompanyController : Controller
-        {
-            JobsDBEntities db = new JobsDBEntities();
+        JobsDBEntities db = new JobsDBEntities();
 
         [HttpGet]
         public ActionResult Register()
@@ -71,7 +73,7 @@ using System.Web.Mvc;
                     Session["IsCompanyOnline"] = true;
                     Session["LoggedCompanyID"] = selectedCompany.CompanyID;
 
-                    return RedirectToAction("CompanyMainPage");
+                    return RedirectToAction("ViewJobPostings");
                 }
                 else
                 {
@@ -88,50 +90,67 @@ using System.Web.Mvc;
 
         // 1. İş ilanı açma
         [HttpGet]
-            public ActionResult CreateJobPosting()
+        public ActionResult CreateJobPosting()
+        {
+            if (Convert.ToBoolean(Session["IsCompanyOnline"]) == true)
             {
-                if (Convert.ToBoolean(Session["IsCompanyOnline"]) == true)
-                {
-                    // Şirketin bağlı olduğu profesyonel meslekleri ve becerileri getirmek için yardımcı metot
-                    ViewBag.proffesions = GetProfessions(); // Professions verilerini gönder
-                    return View();
-                }
-                else
-                {
-                    return RedirectToAction("Login");
-                }
+                // Şirketin bağlı olduğu profesyonel meslekleri ve becerileri getirmek için yardımcı metot
+                ViewBag.proffesions = GetProfessions(); // Professions verilerini gönder
+                return View();
             }
-
-            [HttpPost]
-            public ActionResult CreateJobPosting(Posting newcPosting, string skills)
+            else
             {
-                if (ModelState.IsValid)
-                {
+                return RedirectToAction("Login");
+            }
+        }
 
+        [HttpPost]
+        public ActionResult CreateJobPosting(Posting newcPosting, FormCollection collection)
+        {
+            if (ModelState.IsValid)
+            {
+                var keys = collection.AllKeys.Where(key => key.Contains("checkbox")).ToList();
+                string selected_skills = "";
+                for (int i = 0; i < keys.Count; i++)
+                {
+                    var selected = collection.Get(keys[i]);
+                    if (i == 0)
+                    {
+                        selected_skills += selected;
+                    }
+                    else
+                    {
+                        selected_skills += ","+selected;
+                    }
+                }
+
+                newcPosting.Skills = selected_skills;
                 // Giriş yapmış kullanıcının şirket ID'sini al
                 int companyID = Convert.ToInt32(Session["LoggedCompanyID"]);
 
-                    newcPosting.Company = companyID; // İş ilanına ait şirketi belirle
-                newcPosting.Skills = skills.ToString();
+                
 
-                    db.Posting.Add(newcPosting); // Yeni iş ilanını veritabanına ekle
-                    db.SaveChanges();
+                newcPosting.Company = companyID; // İş ilanına ait şirketi belirle
+                                                 //newcPosting.Skills = skills.ToString();
 
-                    return RedirectToAction("ViewJobPostings");
-                }
+                db.Posting.Add(newcPosting); // Yeni iş ilanını veritabanına ekle
+                db.SaveChanges();
+
+                return RedirectToAction("ViewJobPostings");
+            }
             ViewBag.proffesions = GetProfessions();
             return View(newcPosting);
-            }
+        }
 
-            // 2. İş ilanlarını görüntüleme
-            [HttpGet]
-            public ActionResult ViewJobPostings()
+        // 2. İş ilanlarını görüntüleme
+        [HttpGet]
+        public ActionResult ViewJobPostings()
+        {
+            if (Convert.ToBoolean(Session["IsCompanyOnline"]) == true)
             {
-                if (Convert.ToBoolean(Session["IsCompanyOnline"]) == true)
-                {
-                    int companyID = Convert.ToInt32(Session["LoggedCompanyID"]);
+                int companyID = Convert.ToInt32(Session["LoggedCompanyID"]);
 
-                    var jobPostings = db.Posting.Where(p => p.Company == companyID).ToList(); // Şirketin ilanlarını getir
+                var jobPostings = db.Posting.Where(p => p.Company == companyID).ToList(); // Şirketin ilanlarını getir
 
                 List<Posting> last_postings = new List<Posting>();
 
@@ -148,98 +167,114 @@ using System.Web.Mvc;
                     last_postings.Add(posting);
                 }
                 return View(jobPostings);
-                }
-                else
-                {
-                    return RedirectToAction("Login");
-                }
             }
-
-            // 3. İş ilanını silme
-            [HttpPost]
-            public ActionResult DeleteJobPosting(int cpostingID)
+            else
             {
-                if (Convert.ToBoolean(Session["IsCompanyOnline"]) == true)
-                {
-                    var postingToDelete = db.Posting.Find(cpostingID);
-
-                    if (postingToDelete != null)
-                    {
-                        db.Posting.Remove(postingToDelete); // İş ilanını sil
-                        db.SaveChanges();
-                    }
-
-                    return RedirectToAction("ViewJobPostings");
-                }
-                else
-                {
-                    return RedirectToAction("Login");
-                }
+                return RedirectToAction("Login");
             }
+        }
 
-            // 4. İş ilanını güncelleme
-            [HttpGet]
-            public ActionResult EditJobPosting(int cpostingID)
+        // 3. İş ilanını silme
+        [HttpGet]
+        public ActionResult DeleteJobPosting(int cpostingID)
+        {
+            if (Convert.ToBoolean(Session["IsCompanyOnline"]) == true)
             {
-                if (Convert.ToBoolean(Session["IsCompanyOnline"]) == true)
+                var postingToDelete = db.Posting.Find(cpostingID);
+
+                if (postingToDelete != null)
                 {
+                    db.Posting.Remove(postingToDelete); // İş ilanını sil
+                    db.SaveChanges();
+                }
+
+                return RedirectToAction("ViewJobPostings");
+            }
+            else
+            {
+                return RedirectToAction("Login");
+            }
+        }
+
+        // 4. İş ilanını güncelleme
+        [HttpGet]
+        public ActionResult EditJobPosting(int cpostingID)
+        {
+            if (Convert.ToBoolean(Session["IsCompanyOnline"]) == true)
+            {
                 ViewBag.proffesions = GetProfessions();
                 var posting = db.Posting.Find(cpostingID);
 
-                    if (posting != null)
-                    {
-                        ViewBag.proffesions = GetProfessions();
-                        return View(posting);
-                    }
-                    else
-                    {
-                        return HttpNotFound();
-                    }
+                if (posting != null)
+                {
+                    ViewBag.proffesions = GetProfessions();
+                    return View(posting);
                 }
                 else
                 {
-                    return RedirectToAction("Login");
+                    return HttpNotFound();
                 }
             }
-
-            [HttpPost]
-            public ActionResult EditJobPosting(Posting updatedPosting)
+            else
             {
-                if (ModelState.IsValid)
-                {
-                    var postingToUpdate = db.Posting.Find(updatedPosting.PostingID);
+                return RedirectToAction("Login");
+            }
+        }
 
-                    if (postingToUpdate != null)
+        [HttpPost]
+        public ActionResult EditJobPosting(Posting updatedPosting, FormCollection collection)
+        {
+            if (ModelState.IsValid)
+            {
+                var postingToUpdate = db.Posting.Find(updatedPosting.PostingID);
+
+                if (postingToUpdate != null)
+                {
+                    var keys = collection.AllKeys.Where(key => key.Contains("checkbox")).ToList();
+                    string selected_skills = "";
+                    for (int i = 0; i < keys.Count; i++)
                     {
-                        postingToUpdate.Title = updatedPosting.Title;
-                        postingToUpdate.Description = updatedPosting.Description;
-                        postingToUpdate.Skills = updatedPosting.Skills;
-                      
-                        db.SaveChanges();
+                        var selected = collection.Get(keys[i]);
+                        if (i == 0)
+                        {
+                            selected_skills += selected;
+                        }
+                        else
+                        {
+                            selected_skills += "," + selected;
+                        }
                     }
 
-                    return RedirectToAction("ViewJobPostings");
+                    postingToUpdate.Skills = selected_skills;
+                    postingToUpdate.Title = updatedPosting.Title;
+                    postingToUpdate.Description = updatedPosting.Description;
+                   
+
+                    db.SaveChanges();
                 }
+
+                return RedirectToAction("ViewJobPostings");
+            }
             ViewBag.proffesions = GetProfessions();
             return View(updatedPosting);
-            }
+        }
 
-            // Yardımcı metot: Profesyonel meslekler listesi
-            public List<SelectListItem> GetProfessions()
+        // Yardımcı metot: Profesyonel meslekler listesi
+        public List<SelectListItem> GetProfessions()
+        {
+            List<SelectListItem> listItems = new List<SelectListItem>();
+            var professions = db.Profession.ToList();
+            foreach (var p in professions)
             {
-                List<SelectListItem> listItems = new List<SelectListItem>();
-                var professions = db.Profession.ToList();
-                foreach (var p in professions)
+                SelectListItem item = new SelectListItem
                 {
-                    SelectListItem item = new SelectListItem
-                    {
-                        Text = p.Name,
-                        Value = p.ProfessionID.ToString()
-                    };
-                    listItems.Add(item);
-                }
-                return listItems;
+                    Text = p.Name,
+                    Value = p.ProfessionID.ToString()
+                };
+                listItems.Add(item);
             }
+            return listItems;
+        }
 
 
         [HttpGet]
@@ -256,8 +291,57 @@ using System.Web.Mvc;
             }
             return Json(listItems, JsonRequestBehavior.AllowGet);
         }
+
+        // Başvuruları görüntüleme
+        [HttpGet]
+        public ActionResult ViewApplications()
+        {
+            if (Convert.ToBoolean(Session["IsCompanyOnline"]) == true)
+            {
+                // Şirketin ID'sini al
+                int companyID = Convert.ToInt32(Session["LoggedCompanyID"]);
+
+                // Şirketin tüm iş ilanlarına gelen başvuruları al
+                var applications = db.Application
+                    .Where(a => a.Posting.Company == companyID)  // Şirketin ilanlarına gelen başvurular
+                    .Include(a => a.Posting)  // Başvuruya ait iş ilanı bilgisini de dahil et
+                    .ToList();
+
+                // Başvuruların iş ilanı detaylarını göstermek için başvuru listesini View'a gönder
+                return View(applications);
+            }
+            else
+            {
+                return RedirectToAction("Login");
+            }
+        }
+
+        [HttpGet]
+        public ActionResult ViewApplicationDetails(int applicationId)
+        {
+            if (Convert.ToBoolean(Session["IsCompanyOnline"]) == true)
+            {
+                var application = db.Application
+                    .Include(a => a.Posting)  // Başvurulan iş ilanı bilgilerini de al
+                    .FirstOrDefault(a => a.ApplicationID == applicationId);
+
+                if (application != null)
+                {
+                    return View(application);
+                }
+                else
+                {
+                    return HttpNotFound();
+                }
+            }
+            else
+            {
+                return RedirectToAction("Login");
+            }
+        }
+
     }
-    }
+}
 
 
 
